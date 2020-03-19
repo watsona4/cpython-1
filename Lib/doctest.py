@@ -53,6 +53,7 @@ __all__ = [
     'DONT_ACCEPT_TRUE_FOR_1',
     'DONT_ACCEPT_BLANKLINE',
     'NORMALIZE_WHITESPACE',
+    'REMOVE_WHITESPACE',
     'ELLIPSIS',
     'SKIP',
     'IGNORE_EXCEPTION_DETAIL',
@@ -136,6 +137,7 @@ def register_optionflag(name):
 DONT_ACCEPT_TRUE_FOR_1 = register_optionflag('DONT_ACCEPT_TRUE_FOR_1')
 DONT_ACCEPT_BLANKLINE = register_optionflag('DONT_ACCEPT_BLANKLINE')
 NORMALIZE_WHITESPACE = register_optionflag('NORMALIZE_WHITESPACE')
+REMOVE_WHITESPACE = register_optionflag('REMOVE_WHITESPACE')
 ELLIPSIS = register_optionflag('ELLIPSIS')
 SKIP = register_optionflag('SKIP')
 IGNORE_EXCEPTION_DETAIL = register_optionflag('IGNORE_EXCEPTION_DETAIL')
@@ -143,6 +145,7 @@ IGNORE_EXCEPTION_DETAIL = register_optionflag('IGNORE_EXCEPTION_DETAIL')
 COMPARISON_FLAGS = (DONT_ACCEPT_TRUE_FOR_1 |
                     DONT_ACCEPT_BLANKLINE |
                     NORMALIZE_WHITESPACE |
+                    REMOVE_WHITESPACE |
                     ELLIPSIS |
                     SKIP |
                     IGNORE_EXCEPTION_DETAIL)
@@ -1616,10 +1619,19 @@ class OutputChecker:
             if got == want:
                 return True
 
+        # This flag causes doctest to remove whitespaces. Note that
+        # this can be used in conjunction with the ELLIPSIS flag.
+        if optionflags & REMOVE_WHITESPACE:
+            got = ''.join(got.split())
+            want = ''.join(want.split())
+            if got == want:
+                return True
+
         # This flag causes doctest to ignore any differences in the
         # contents of whitespace strings.  Note that this can be used
         # in conjunction with the ELLIPSIS flag.
-        if optionflags & NORMALIZE_WHITESPACE:
+        if (optionflags & NORMALIZE_WHITESPACE) and \
+           not (optionflags & REMOVE_WHITESPACE):
             got = ' '.join(got.split())
             want = ' '.join(want.split())
             if got == want:

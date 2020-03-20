@@ -63,6 +63,7 @@ __all__ = [
     'REPORT_ONLY_FIRST_FAILURE',
     'REPORTING_FLAGS',
     'FAIL_FAST',
+    'IGNORE_OUTPUT',
     # 1. Utility Functions
     # 2. Example & DocTest
     'Example',
@@ -162,6 +163,9 @@ REPORTING_FLAGS = (REPORT_UDIFF |
 # Special string markers for use in `want` strings:
 BLANKLINE_MARKER = '<BLANKLINE>'
 ELLIPSIS_MARKER = '...'
+
+# New Option to ignore comparison, but still run line
+IGNORE_OUTPUT = register_optionflag('IGNORE_OUTPUT')
 
 ######################################################################
 ## Table of Contents
@@ -1615,6 +1619,12 @@ class OutputChecker:
             got = re.sub(r'(?m)^[^\S\n]+$', '', got)
             if got == want:
                 return True
+
+        # This flag causes doctest to ignore the output from the example.
+        # Very useful when output may change for some reason, but you
+        # still need the example line to be executed
+        if optionflags & IGNORE_OUTPUT:
+            return True
 
         # This flag causes doctest to ignore any differences in the
         # contents of whitespace strings.  Note that this can be used
